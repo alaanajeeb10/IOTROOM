@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pool Room Lock</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            padding: 50px;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            width: 300px;
+            margin: auto;
+        }
+        input {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 18px;
+            text-align: center;
+        }
+        button {
+            background: #28a745;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background: #218838;
+        }
+        .message {
+            margin-top: 15px;
+            font-size: 18px;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Enter 4-Digit Code</h2>
+    <input type="text" id="password" maxlength="4" placeholder="0000">
+    <button onclick="submitPassword()">Unlock</button>
+    <p id="message" class="message"></p>
+</div>
+
+<script>
+    async function submitPassword() {
+        const password = document.getElementById("password").value;
+        const messageBox = document.getElementById("message");
+
+        if (password.length !== 4 || isNaN(password)) {
+            messageBox.style.color = "red";
+            messageBox.innerText = "Enter a valid 4-digit code!";
+            return;
+        }
+
+        try {
+            const response = await fetch("http://<LOCK_CONTROLLER_IP>/unlock", { // Replace with ESP8266 IP
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ password: password })
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                messageBox.style.color = "green";
+                messageBox.innerText = "Door Unlocked!";
+            } else {
+                messageBox.style.color = "red";
+                messageBox.innerText = "Wrong Password!";
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            messageBox.style.color = "red";
+            messageBox.innerText = "Server Error!";
+        }
+    }
+</script>
+
+</body>
+</html>
